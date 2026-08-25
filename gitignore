@@ -1,0 +1,27 @@
+## .NET build artifacts
+bin/
+obj/
+out/
+
+## User-specific files
+*.user
+*.suo
+.vs/
+.vscode/
+*.DotSettings.user
+
+## Rider / JetBrains
+.idea/
+
+## Test results
+TestResults/
+*.trx
+
+## NuGet
+*.nupkg
+*.snupkg
+**/packages/
+.nuget/
+
+## macOS
+.DS_Store
