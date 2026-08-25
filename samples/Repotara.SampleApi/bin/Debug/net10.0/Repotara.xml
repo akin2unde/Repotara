@@ -1,0 +1,1098 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Repotara</name>
+    </assembly>
+    <members>
+        <member name="T:Repotara.Aggregation.AggregateType">
+            <summary>
+            Supported aggregate operations. Every value here translates directly to a native
+            SQL aggregate function and a native MongoDB accumulator, so no in-memory
+            fallback is required for any of them.
+            </summary>
+        </member>
+        <member name="F:Repotara.Aggregation.AggregateType.Sum">
+            <summary>Sum of all values in the group.</summary>
+        </member>
+        <member name="F:Repotara.Aggregation.AggregateType.Avg">
+            <summary>Average of all values in the group.</summary>
+        </member>
+        <member name="F:Repotara.Aggregation.AggregateType.Count">
+            <summary>Count of rows in the group.</summary>
+        </member>
+        <member name="F:Repotara.Aggregation.AggregateType.Min">
+            <summary>Smallest value in the group.</summary>
+        </member>
+        <member name="F:Repotara.Aggregation.AggregateType.Max">
+            <summary>Largest value in the group.</summary>
+        </member>
+        <member name="T:Repotara.Aggregation.SumAggregator">
+            <summary>Built-in aggregator for <see cref="F:Repotara.Aggregation.AggregateType.Sum"/>.</summary>
+        </member>
+        <member name="P:Repotara.Aggregation.SumAggregator.Type">
+            <inheritdoc />
+        </member>
+        <member name="M:Repotara.Aggregation.SumAggregator.Compute(System.Collections.Generic.IEnumerable{System.Object})">
+            <inheritdoc />
+        </member>
+        <member name="T:Repotara.Aggregation.AvgAggregator">
+            <summary>Built-in aggregator for <see cref="F:Repotara.Aggregation.AggregateType.Avg"/>.</summary>
+        </member>
+        <member name="P:Repotara.Aggregation.AvgAggregator.Type">
+            <inheritdoc />
+        </member>
+        <member name="M:Repotara.Aggregation.AvgAggregator.Compute(System.Collections.Generic.IEnumerable{System.Object})">
+            <inheritdoc />
+        </member>
+        <member name="T:Repotara.Aggregation.CountAggregator">
+            <summary>Built-in aggregator for <see cref="F:Repotara.Aggregation.AggregateType.Count"/>.</summary>
+        </member>
+        <member name="P:Repotara.Aggregation.CountAggregator.Type">
+            <inheritdoc />
+        </member>
+        <member name="M:Repotara.Aggregation.CountAggregator.Compute(System.Collections.Generic.IEnumerable{System.Object})">
+            <inheritdoc />
+        </member>
+        <member name="T:Repotara.Aggregation.MinAggregator">
+            <summary>Built-in aggregator for <see cref="F:Repotara.Aggregation.AggregateType.Min"/>.</summary>
+        </member>
+        <member name="P:Repotara.Aggregation.MinAggregator.Type">
+            <inheritdoc />
+        </member>
+        <member name="M:Repotara.Aggregation.MinAggregator.Compute(System.Collections.Generic.IEnumerable{System.Object})">
+            <inheritdoc />
+        </member>
+        <member name="T:Repotara.Aggregation.MaxAggregator">
+            <summary>Built-in aggregator for <see cref="F:Repotara.Aggregation.AggregateType.Max"/>.</summary>
+        </member>
+        <member name="P:Repotara.Aggregation.MaxAggregator.Type">
+            <inheritdoc />
+        </member>
+        <member name="M:Repotara.Aggregation.MaxAggregator.Compute(System.Collections.Generic.IEnumerable{System.Object})">
+            <inheritdoc />
+        </member>
+        <member name="T:Repotara.Aggregation.AggregatorFactory">
+            <summary>Resolves the built-in aggregator for a given <see cref="T:Repotara.Aggregation.AggregateType"/>.</summary>
+        </member>
+        <member name="M:Repotara.Aggregation.AggregatorFactory.Create(Repotara.Aggregation.AggregateType)">
+            <summary>Returns the built-in aggregator implementation for the given type.</summary>
+        </member>
+        <member name="T:Repotara.Aggregation.GroupingEngine">
+            <summary>
+            Groups already-flattened rows by the requested group-by columns and applies
+            aggregators to the remaining fields. Used as the in-memory fallback path;
+            native providers perform grouping in the database instead.
+            </summary>
+        </member>
+        <member name="M:Repotara.Aggregation.GroupingEngine.GroupAndAggregate(System.Collections.Generic.List{Repotara.ReportRow},Repotara.Definition.ReportDefinition)">
+            <summary>
+            Groups and aggregates rows according to the definition's GroupBy and
+            field aggregate settings. Rows must already carry values keyed by output
+            display name matching <paramref name="definition"/>'s field list.
+            </summary>
+        </member>
+        <member name="T:Repotara.Aggregation.IAggregator">
+            <summary>
+            Computes a single aggregate value over a set of raw values. Used by the
+            in-memory fallback grouping engine; native providers use SQL/Mongo aggregate
+            functions directly and do not go through this interface.
+            </summary>
+        </member>
+        <member name="P:Repotara.Aggregation.IAggregator.Type">
+            <summary>The aggregate operation this instance computes.</summary>
+        </member>
+        <member name="M:Repotara.Aggregation.IAggregator.Compute(System.Collections.Generic.IEnumerable{System.Object})">
+            <summary>Computes the aggregate over the given values.</summary>
+        </member>
+        <member name="T:Repotara.Attributes.ReportableAttribute">
+            <summary>
+            Marks a class as an eligible report data source.
+            All public properties are reportable by default unless marked with <see cref="T:Repotara.Attributes.ReportIgnoreAttribute"/>.
+            </summary>
+        </member>
+        <member name="P:Repotara.Attributes.ReportableAttribute.Source">
+            <summary>
+            The physical table name (SQL) or collection name (MongoDB) that backs this class.
+            Defaults to the class name if not set.
+            </summary>
+        </member>
+        <member name="P:Repotara.Attributes.ReportableAttribute.IgnoreTenant">
+            <summary>
+            When true, this class is excluded from multi-tenant filtering even if
+            <c>RepotaraOptions.EnableMultiTenancy</c> is on. Use for shared/global data
+            (lookup tables) or classes that use a different tenant convention.
+            </summary>
+        </member>
+        <member name="T:Repotara.Attributes.ReportFieldAttribute">
+            <summary>
+            Optional attribute to customize how a property is exposed for reporting.
+            A property does not need this attribute to be reportable -- it is only
+            required when the defaults (property name as column, no aggregate restriction)
+            need to be overridden.
+            </summary>
+        </member>
+        <member name="P:Repotara.Attributes.ReportFieldAttribute.DisplayName">
+            <summary>
+            The default output column name used when the frontend's field selection
+            does not supply its own <c>DisplayName</c>. Falls back to the property name if not set.
+            </summary>
+        </member>
+        <member name="P:Repotara.Attributes.ReportFieldAttribute.Column">
+            <summary>
+            The physical column name (SQL) or field name (MongoDB). Falls back to the
+            property name if not set.
+            </summary>
+        </member>
+        <member name="P:Repotara.Attributes.ReportFieldAttribute.AllowedAggregates">
+            <summary>
+            Restricts which aggregate operations may be requested against this field.
+            An empty array (the default) means any aggregate is allowed.
+            </summary>
+        </member>
+        <member name="T:Repotara.Attributes.ReportIgnoreAttribute">
+            <summary>
+            Excludes a public property from reporting. All public properties on a
+            <see cref="T:Repotara.Attributes.ReportableAttribute"/>-marked class are reportable by default;
+            apply this to opt a specific property out.
+            </summary>
+        </member>
+        <member name="T:Repotara.Definition.ConcatDefinition">
+            <summary>
+            Describes a computed field made by joining two or more source fields with a
+            delimiter, e.g. FirstName + " " + LastName -> "Full Name". Does not support
+            mixing in literal text beyond the single delimiter.
+            </summary>
+        </member>
+        <member name="P:Repotara.Definition.ConcatDefinition.Fields">
+            <summary>
+            The "Source.Property" paths to concatenate, in order. Must contain at least two entries.
+            </summary>
+        </member>
+        <member name="P:Repotara.Definition.ConcatDefinition.Delimiter">
+            <summary>The delimiter placed between each field. Defaults to a single space.</summary>
+        </member>
+        <member name="T:Repotara.Definition.JoinDefinition">
+            <summary>
+            Describes how two sources in a <see cref="T:Repotara.Definition.ReportDefinition"/> are joined.
+            Multiple joins chain together to support any number of sources.
+            </summary>
+        </member>
+        <member name="P:Repotara.Definition.JoinDefinition.Left">
+            <summary>The source name on the left side of the join, e.g. "Order".</summary>
+        </member>
+        <member name="P:Repotara.Definition.JoinDefinition.LeftKey">
+            <summary>The property on the left source used as the join key, e.g. "CustomerId".</summary>
+        </member>
+        <member name="P:Repotara.Definition.JoinDefinition.Right">
+            <summary>The source name on the right side of the join, e.g. "Customer".</summary>
+        </member>
+        <member name="P:Repotara.Definition.JoinDefinition.RightKey">
+            <summary>The property on the right source used as the join key, e.g. "Id".</summary>
+        </member>
+        <member name="P:Repotara.Definition.JoinDefinition.Type">
+            <summary>The join type. Defaults to inner.</summary>
+        </member>
+        <member name="T:Repotara.Definition.JoinType">
+            <summary>The kind of join between two sources.</summary>
+        </member>
+        <member name="F:Repotara.Definition.JoinType.Inner">
+            <summary>Only rows with a match on both sides are included.</summary>
+        </member>
+        <member name="F:Repotara.Definition.JoinType.Left">
+            <summary>All rows from the left source are included, matched or not.</summary>
+        </member>
+        <member name="T:Repotara.Definition.ReportDefinition">
+            <summary>
+            The JSON contract sent by the frontend describing what report to run: which
+            sources, how they join, how to filter/group/aggregate/sort them, and how many
+            rows to return. This is the only thing the frontend needs to know about --
+            it never needs to know the underlying database, tables, or physical columns.
+            </summary>
+        </member>
+        <member name="P:Repotara.Definition.ReportDefinition.Types">
+            <summary>
+            The reportable source names involved in this report, e.g. ["Order", "Customer"].
+            Each name must correspond to a class registered with the engine.
+            </summary>
+        </member>
+        <member name="P:Repotara.Definition.ReportDefinition.Joins">
+            <summary>
+            Join instructions chaining the sources together. Required when
+            <see cref="P:Repotara.Definition.ReportDefinition.Types"/> has more than one entry.
+            </summary>
+        </member>
+        <member name="P:Repotara.Definition.ReportDefinition.Fields">
+            <summary>The fields to include in the output, in the order they should appear.</summary>
+        </member>
+        <member name="P:Repotara.Definition.ReportDefinition.Filter">
+            <summary>
+            Row-level filter, applied before aggregation. See <see cref="T:Repotara.Definition.SearchParam"/>.
+            </summary>
+        </member>
+        <member name="P:Repotara.Definition.ReportDefinition.Having">
+            <summary>
+            Aggregate-level filter, applied after grouping/aggregation. See <see cref="T:Repotara.Definition.SearchParam"/>.
+            Conditions here reference output display names, not source properties.
+            </summary>
+        </member>
+        <member name="P:Repotara.Definition.ReportDefinition.GroupBy">
+            <summary>Properties to group by, as "Source.Property" paths. Optional.</summary>
+        </member>
+        <member name="P:Repotara.Definition.ReportDefinition.Sort">
+            <summary>Sort instructions, applied in list order. Optional.</summary>
+        </member>
+        <member name="P:Repotara.Definition.ReportDefinition.Skip">
+            <summary>Number of rows to skip, for pagination. Optional.</summary>
+        </member>
+        <member name="P:Repotara.Definition.ReportDefinition.Take">
+            <summary>
+            Maximum number of rows to return. If not supplied, falls back to
+            <c>RepotaraOptions.DefaultRowLimit</c> so no report runs unbounded by accident.
+            </summary>
+        </member>
+        <member name="P:Repotara.Definition.ReportDefinition.Template">
+            <summary>
+            An HTML template containing simple <c>{{DisplayName}}</c> substitution tags.
+            Used only when the requested Repotara.Output.OutputFormat is Html; ignored otherwise.
+            </summary>
+        </member>
+        <member name="T:Repotara.Definition.ReportDefinitionValidator">
+            <summary>
+            Validates a <see cref="T:Repotara.Definition.ReportDefinition"/> against cached source metadata
+            before it is ever translated into a query: every referenced field must
+            exist and be reportable, every aggregate must be allowed for its field,
+            and every join must reference real keys.
+            </summary>
+        </member>
+        <member name="M:Repotara.Definition.ReportDefinitionValidator.Validate(Repotara.Definition.ReportDefinition,System.Collections.Generic.IReadOnlyDictionary{System.String,Repotara.Metadata.ReportTypeMetadata})">
+            <summary>Validates the given definition, returning every error found.</summary>
+        </member>
+        <member name="T:Repotara.Definition.ReportFieldSelection">
+            <summary>
+            One field selected by the frontend for output. Exactly one of
+            <see cref="P:Repotara.Definition.ReportFieldSelection.Field"/> or <see cref="P:Repotara.Definition.ReportFieldSelection.Concat"/> must be set.
+            </summary>
+        </member>
+        <member name="P:Repotara.Definition.ReportFieldSelection.Field">
+            <summary>
+            A plain "Source.Property" reference, e.g. "Order.Total".
+            Mutually exclusive with <see cref="P:Repotara.Definition.ReportFieldSelection.Concat"/>.
+            </summary>
+        </member>
+        <member name="P:Repotara.Definition.ReportFieldSelection.Concat">
+            <summary>
+            A computed concatenation of multiple fields. Mutually exclusive with <see cref="P:Repotara.Definition.ReportFieldSelection.Field"/>.
+            Cannot be combined with <see cref="P:Repotara.Definition.ReportFieldSelection.Aggregate"/>.
+            </summary>
+        </member>
+        <member name="P:Repotara.Definition.ReportFieldSelection.DisplayName">
+            <summary>
+            The output column name. Falls back to the field's attribute-level
+            DisplayName, then to the raw property name, if not supplied.
+            </summary>
+        </member>
+        <member name="P:Repotara.Definition.ReportFieldSelection.Aggregate">
+            <summary>
+            The aggregate operation to apply to this field. Required when the
+            definition specifies <see cref="P:Repotara.Definition.ReportDefinition.GroupBy"/> and this
+            field is not one of the group-by fields.
+            </summary>
+        </member>
+        <member name="T:Repotara.Definition.SearchParam">
+            <summary>
+            A recursive filter condition node, used for both <see cref="P:Repotara.Definition.ReportDefinition.Filter"/>
+            (row-level, applied before aggregation) and <see cref="P:Repotara.Definition.ReportDefinition.Having"/>
+            (aggregate-level, applied after aggregation).
+            <para>
+            A node is either a leaf condition (<see cref="P:Repotara.Definition.SearchParam.Property"/> + <see cref="P:Repotara.Definition.SearchParam.Operation"/> set)
+            or a branch (<see cref="P:Repotara.Definition.SearchParam.Operator"/> + <see cref="P:Repotara.Definition.SearchParam.Conditions"/> set). Branches nest to
+            any depth, the same way SQL AND/OR groups nest.
+            </para>
+            </summary>
+        </member>
+        <member name="P:Repotara.Definition.SearchParam.Property">
+            <summary>
+            Leaf only. The property being compared. Before aggregation this is a
+            "Source.Property" path; in a <see cref="P:Repotara.Definition.ReportDefinition.Having"/> clause
+            this is an output display name instead, since aggregated values don't
+            belong to a single source.
+            </summary>
+        </member>
+        <member name="P:Repotara.Definition.SearchParam.Operation">
+            <summary>
+            Leaf only. The comparison operation: EQ, NEQ, GT, GTE, LT, LTE, IN, CONTAINS.
+            </summary>
+        </member>
+        <member name="P:Repotara.Definition.SearchParam.Value">
+            <summary>
+            Leaf only. A literal value to compare against. May also be a relative date
+            keyword (e.g. "TODAY", "THIS_MONTH") when the target property is a date.
+            Mutually exclusive with <see cref="P:Repotara.Definition.SearchParam.ValueProperty"/>.
+            </summary>
+        </member>
+        <member name="P:Repotara.Definition.SearchParam.ValueProperty">
+            <summary>
+            Leaf only. A "Source.Property" path to compare against instead of a literal
+            value, e.g. comparing two columns on the same row. Mutually exclusive with <see cref="P:Repotara.Definition.SearchParam.Value"/>.
+            </summary>
+        </member>
+        <member name="P:Repotara.Definition.SearchParam.Operator">
+            <summary>Branch only. "And" or "Or".</summary>
+        </member>
+        <member name="P:Repotara.Definition.SearchParam.Conditions">
+            <summary>Branch only. The nested conditions combined by <see cref="P:Repotara.Definition.SearchParam.Operator"/>.</summary>
+        </member>
+        <member name="P:Repotara.Definition.SearchParam.IsBranch">
+            <summary>True if this node is a branch (has nested conditions) rather than a leaf.</summary>
+        </member>
+        <member name="T:Repotara.Definition.SortDirection">
+            <summary>Sort direction for a <see cref="T:Repotara.Definition.SortField"/>.</summary>
+        </member>
+        <member name="F:Repotara.Definition.SortDirection.Asc">
+            <summary>Ascending order (A-Z, smallest first).</summary>
+        </member>
+        <member name="F:Repotara.Definition.SortDirection.Desc">
+            <summary>Descending order (Z-A, largest first).</summary>
+        </member>
+        <member name="T:Repotara.Definition.SortField">
+            <summary>
+            One entry in a <see cref="T:Repotara.Definition.ReportDefinition"/>'s sort list. Multiple entries
+            are applied in order, like a SQL <c>ORDER BY a, b</c>.
+            </summary>
+        </member>
+        <member name="P:Repotara.Definition.SortField.Field">
+            <summary>
+            The field to sort by. Before aggregation this is a "Source.Property" path;
+            after aggregation it may be an output display name instead.
+            </summary>
+        </member>
+        <member name="P:Repotara.Definition.SortField.Direction">
+            <summary>The sort direction. Defaults to ascending.</summary>
+        </member>
+        <member name="T:Repotara.Definition.ValidationError">
+            <summary>One field-level validation failure found in a <see cref="T:Repotara.Definition.ReportDefinition"/>.</summary>
+        </member>
+        <member name="P:Repotara.Definition.ValidationError.Field">
+            <summary>The field or path the error relates to.</summary>
+        </member>
+        <member name="P:Repotara.Definition.ValidationError.Reason">
+            <summary>A human-readable explanation of what's wrong.</summary>
+        </member>
+        <member name="T:Repotara.Definition.ValidationResult">
+            <summary>The outcome of validating a <see cref="T:Repotara.Definition.ReportDefinition"/> against source metadata.</summary>
+        </member>
+        <member name="P:Repotara.Definition.ValidationResult.IsValid">
+            <summary>True if no errors were found.</summary>
+        </member>
+        <member name="P:Repotara.Definition.ValidationResult.Errors">
+            <summary>Every validation failure found, empty if valid.</summary>
+        </member>
+        <member name="M:Repotara.Definition.ValidationResult.Success">
+            <summary>A result with no errors.</summary>
+        </member>
+        <member name="M:Repotara.Definition.ValidationResult.Failure(System.Collections.Generic.List{Repotara.Definition.ValidationError})">
+            <summary>A result carrying the given errors.</summary>
+        </member>
+        <member name="T:Repotara.Filtering.FilterEvaluator">
+            <summary>
+            Evaluates a <see cref="T:Repotara.Definition.SearchParam"/> tree against an in-memory
+            <see cref="T:Repotara.ReportRow"/>. Used as a fallback for scenarios a provider cannot
+            push all the way down to the database (e.g. the post-join, pre-aggregation
+            step when working with already-fetched rows).
+            </summary>
+        </member>
+        <member name="M:Repotara.Filtering.FilterEvaluator.Matches(Repotara.Definition.SearchParam,Repotara.ReportRow)">
+            <summary>Evaluates the given node against a row. A null node always matches.</summary>
+        </member>
+        <member name="T:Repotara.Filtering.RelativeDateKeyword">
+            <summary>
+            String constants recognized as relative date values inside a
+            <c>SearchParam.Value</c> when comparing a date/time property. Each resolves
+            to a full calendar-day (or week/month) range, not a single instant.
+            </summary>
+        </member>
+        <member name="F:Repotara.Filtering.RelativeDateKeyword.Today">
+            <summary>The full current calendar day.</summary>
+        </member>
+        <member name="F:Repotara.Filtering.RelativeDateKeyword.Yesterday">
+            <summary>The full previous calendar day.</summary>
+        </member>
+        <member name="F:Repotara.Filtering.RelativeDateKeyword.ThisWeek">
+            <summary>The current calendar week (Sunday through Saturday).</summary>
+        </member>
+        <member name="F:Repotara.Filtering.RelativeDateKeyword.ThisMonth">
+            <summary>The current calendar month.</summary>
+        </member>
+        <member name="F:Repotara.Filtering.RelativeDateKeyword.LastWeek">
+            <summary>The previous calendar week.</summary>
+        </member>
+        <member name="F:Repotara.Filtering.RelativeDateKeyword.LastMonth">
+            <summary>The previous calendar month.</summary>
+        </member>
+        <member name="M:Repotara.Filtering.RelativeDateKeyword.IsKeyword(System.String)">
+            <summary>Returns true if the given text is a recognized relative date keyword.</summary>
+        </member>
+        <member name="T:Repotara.Filtering.RelativeDateResolver">
+            <summary>
+            Walks a <see cref="T:Repotara.Definition.SearchParam"/> tree and rewrites any leaf whose value is a
+            relative date keyword (e.g. "TODAY") into a concrete GTE/LT range pair. Runs
+            before validation and query building, so downstream code only ever sees
+            concrete literal values.
+            </summary>
+        </member>
+        <member name="M:Repotara.Filtering.RelativeDateResolver.Resolve(Repotara.Definition.SearchParam,System.DateTime)">
+            <summary>
+            Returns a new tree with all relative date keywords resolved against the
+            given "current" instant. Passing the current time explicitly (rather than
+            reading it internally) keeps this method easy to unit test.
+            </summary>
+        </member>
+        <member name="T:Repotara.Joining.JoinEngine">
+            <summary>
+            Performs an in-memory equi-join across any number of chained sources. Used
+            as the fallback path when a provider cannot express a particular join
+            natively; the SQL and MongoDB providers normally push joins down instead.
+            </summary>
+        </member>
+        <member name="M:Repotara.Joining.JoinEngine.Flatten(System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{System.Collections.Generic.Dictionary{System.String,System.Object}}},System.Collections.Generic.List{Repotara.Definition.JoinDefinition})">
+            <summary>
+            Flattens the given per-source object lists into composite rows according
+            to the join chain. Each output row exposes values under
+            "SourceName.PropertyName" keys via a lookup delegate supplied by the caller.
+            </summary>
+        </member>
+        <member name="T:Repotara.Metadata.FieldAccessor">
+            <summary>
+            A pre-compiled, reflection-free getter for a single property. Built once per
+            property when a type is first scanned by <see cref="T:Repotara.Metadata.ReportMetadataCache"/>,
+            then reused for every row afterward.
+            </summary>
+        </member>
+        <member name="P:Repotara.Metadata.FieldAccessor.Getter">
+            <summary>The compiled getter delegate.</summary>
+        </member>
+        <member name="M:Repotara.Metadata.FieldAccessor.Compile(System.Reflection.PropertyInfo)">
+            <summary>
+            Compiles a getter for the given property using an expression tree,
+            paying the reflection/JIT cost once instead of on every access.
+            </summary>
+        </member>
+        <member name="T:Repotara.Metadata.FieldMetadata">
+            <summary>
+            Resolved, cached metadata for a single reportable property: its C# name,
+            its physical column name, its default display name, which aggregates are
+            allowed on it, and a compiled accessor for fast in-memory access.
+            </summary>
+        </member>
+        <member name="P:Repotara.Metadata.FieldMetadata.PropertyName">
+            <summary>The C# property name, e.g. "Total".</summary>
+        </member>
+        <member name="P:Repotara.Metadata.FieldMetadata.Column">
+            <summary>The physical column name (SQL) or field name (MongoDB).</summary>
+        </member>
+        <member name="P:Repotara.Metadata.FieldMetadata.DefaultDisplayName">
+            <summary>The default display name used when no per-request override is supplied.</summary>
+        </member>
+        <member name="P:Repotara.Metadata.FieldMetadata.AllowedAggregates">
+            <summary>
+            Aggregate operations allowed against this field. Empty means any aggregate is allowed.
+            </summary>
+        </member>
+        <member name="P:Repotara.Metadata.FieldMetadata.Accessor">
+            <summary>Compiled, reflection-free getter for this property.</summary>
+        </member>
+        <member name="P:Repotara.Metadata.FieldMetadata.PropertyType">
+            <summary>The declared .NET type of the property.</summary>
+        </member>
+        <member name="T:Repotara.Metadata.FieldResolver">
+            <summary>
+            Resolves "Source.Property" paths against cached type metadata. Used by
+            <c>ReportDefinitionValidator</c> and both query builders so field resolution
+            logic exists in exactly one place.
+            </summary>
+        </member>
+        <member name="M:Repotara.Metadata.FieldResolver.SplitPath(System.String)">
+            <summary>
+            Splits a "Source.Property" path and returns the source name and property name.
+            </summary>
+        </member>
+        <member name="M:Repotara.Metadata.FieldResolver.ResolveField(System.String,System.Collections.Generic.IReadOnlyDictionary{System.String,Repotara.Metadata.ReportTypeMetadata})">
+            <summary>
+            Resolves a "Source.Property" path to its <see cref="T:Repotara.Metadata.FieldMetadata"/>, throwing
+            a clear error if the source or property is not reportable.
+            </summary>
+        </member>
+        <member name="M:Repotara.Metadata.FieldResolver.ResolveColumn(System.String,System.Collections.Generic.IReadOnlyDictionary{System.String,Repotara.Metadata.ReportTypeMetadata})">
+            <summary>
+            Resolves a "Source.Property" path to its physical "source.column" form,
+            e.g. "Order.Total" -> "Order.order_total". Used when building native queries.
+            </summary>
+        </member>
+        <member name="T:Repotara.Metadata.ReportMetadataCache">
+            <summary>
+            Reflects each <c>[Reportable]</c> type exactly once and caches the result for
+            the lifetime of the process. Every subsequent request for the same type is a
+            dictionary lookup, not a reflection scan.
+            </summary>
+        </member>
+        <member name="M:Repotara.Metadata.ReportMetadataCache.Get(System.Type)">
+            <summary>
+            Gets the cached metadata for a type, building and caching it on first use.
+            </summary>
+        </member>
+        <member name="M:Repotara.Metadata.ReportMetadataCache.Clear">
+            <summary>
+            Clears all cached metadata. Intended only for scenarios involving dynamic
+            assembly loading or hot-reload of reportable types; not needed in normal use.
+            </summary>
+        </member>
+        <member name="T:Repotara.Metadata.ReportTypeMetadata">
+            <summary>
+            Resolved, cached metadata for one <c>[Reportable]</c> class: its physical
+            source name, its tenant opt-out flag, and metadata for every reportable field.
+            </summary>
+        </member>
+        <member name="P:Repotara.Metadata.ReportTypeMetadata.ClrType">
+            <summary>The CLR type this metadata was built from.</summary>
+        </member>
+        <member name="P:Repotara.Metadata.ReportTypeMetadata.Source">
+            <summary>The physical table/collection name.</summary>
+        </member>
+        <member name="P:Repotara.Metadata.ReportTypeMetadata.IgnoreTenant">
+            <summary>Whether this class is excluded from multi-tenant filtering.</summary>
+        </member>
+        <member name="P:Repotara.Metadata.ReportTypeMetadata.Fields">
+            <summary>Metadata for every reportable field, keyed by C# property name.</summary>
+        </member>
+        <member name="M:Repotara.Metadata.ReportTypeMetadata.GetField(System.String)">
+            <summary>
+            Looks up field metadata by property name, or returns null if the
+            property does not exist or is not reportable.
+            </summary>
+        </member>
+        <member name="T:Repotara.Output.ChartReportWriter">
+            <summary>
+            Serializes result rows as a chart-ready { labels, datasets } JSON shape,
+            directly usable by charting libraries such as Chart.js or Recharts. Uses
+            the first <see cref="P:Repotara.Definition.ReportDefinition.GroupBy"/> column as the label and
+            every aggregate field as a dataset.
+            </summary>
+        </member>
+        <member name="P:Repotara.Output.ChartReportWriter.Format">
+            <inheritdoc />
+        </member>
+        <member name="P:Repotara.Output.ChartReportWriter.ContentType">
+            <inheritdoc />
+        </member>
+        <member name="M:Repotara.Output.ChartReportWriter.Write(System.Collections.Generic.IReadOnlyList{Repotara.ReportRow},Repotara.Definition.ReportDefinition)">
+            <inheritdoc />
+        </member>
+        <member name="T:Repotara.Output.HtmlReportWriter">
+            <summary>
+            Renders result rows as HTML. If <see cref="P:Repotara.Definition.ReportDefinition.Template"/> is
+            set, renders that template once per row and concatenates the output.
+            Otherwise falls back to a plain HTML table.
+            </summary>
+        </member>
+        <member name="P:Repotara.Output.HtmlReportWriter.Format">
+            <inheritdoc />
+        </member>
+        <member name="P:Repotara.Output.HtmlReportWriter.ContentType">
+            <inheritdoc />
+        </member>
+        <member name="M:Repotara.Output.HtmlReportWriter.Write(System.Collections.Generic.IReadOnlyList{Repotara.ReportRow},Repotara.Definition.ReportDefinition)">
+            <inheritdoc />
+        </member>
+        <member name="T:Repotara.Output.IReportWriter">
+            <summary>
+            Writes a set of result rows out as a specific format. Implementations are
+            pluggable -- consumers can register a custom writer for a format not
+            built in (e.g. CSV) without touching the core engine.
+            </summary>
+        </member>
+        <member name="P:Repotara.Output.IReportWriter.Format">
+            <summary>The output format this writer produces.</summary>
+        </member>
+        <member name="P:Repotara.Output.IReportWriter.ContentType">
+            <summary>The MIME content type of the produced output.</summary>
+        </member>
+        <member name="M:Repotara.Output.IReportWriter.Write(System.Collections.Generic.IReadOnlyList{Repotara.ReportRow},Repotara.Definition.ReportDefinition)">
+            <summary>Writes the rows as a string in this writer's format.</summary>
+        </member>
+        <member name="T:Repotara.Output.JsonReportWriter">
+            <summary>Serializes result rows as a JSON array of objects, keyed by column name.</summary>
+        </member>
+        <member name="P:Repotara.Output.JsonReportWriter.Format">
+            <inheritdoc />
+        </member>
+        <member name="P:Repotara.Output.JsonReportWriter.ContentType">
+            <inheritdoc />
+        </member>
+        <member name="M:Repotara.Output.JsonReportWriter.Write(System.Collections.Generic.IReadOnlyList{Repotara.ReportRow},Repotara.Definition.ReportDefinition)">
+            <inheritdoc />
+        </member>
+        <member name="T:Repotara.Output.OutputFormat">
+            <summary>The output format a report can be written as.</summary>
+        </member>
+        <member name="F:Repotara.Output.OutputFormat.Json">
+            <summary>A JSON array of row objects.</summary>
+        </member>
+        <member name="F:Repotara.Output.OutputFormat.Xml">
+            <summary>An XML document with one Row element per record.</summary>
+        </member>
+        <member name="F:Repotara.Output.OutputFormat.Html">
+            <summary>An HTML table, or a rendered custom template if one is supplied.</summary>
+        </member>
+        <member name="F:Repotara.Output.OutputFormat.Chart">
+            <summary>A chart-ready { labels, datasets } JSON shape for charting libraries.</summary>
+        </member>
+        <member name="T:Repotara.Output.XmlReportWriter">
+            <summary>Serializes result rows as an XML document with one &lt;Row&gt; element per record.</summary>
+        </member>
+        <member name="P:Repotara.Output.XmlReportWriter.Format">
+            <inheritdoc />
+        </member>
+        <member name="P:Repotara.Output.XmlReportWriter.ContentType">
+            <inheritdoc />
+        </member>
+        <member name="M:Repotara.Output.XmlReportWriter.Write(System.Collections.Generic.IReadOnlyList{Repotara.ReportRow},Repotara.Definition.ReportDefinition)">
+            <inheritdoc />
+        </member>
+        <member name="T:Repotara.Providers.ConnectionStringFactory">
+            <summary>
+            Builds a provider-specific connection string from the discrete Host/Port/
+            DatabaseName/Username/Password fields in <see cref="T:Repotara.Providers.RepotaraOptions"/>, so
+            consumers never need to know provider-specific connection string syntax.
+            </summary>
+        </member>
+        <member name="M:Repotara.Providers.ConnectionStringFactory.Build(Repotara.Providers.RepotaraOptions)">
+            <summary>Builds the connection string appropriate for the configured provider and dialect.</summary>
+        </member>
+        <member name="T:Repotara.Providers.IReportDataProvider">
+            <summary>
+            Executes a validated <see cref="T:Repotara.Definition.ReportDefinition"/> against a physical
+            database and returns the result rows. Exactly one implementation is active
+            per project, selected at startup via <c>RepotaraOptions.Provider</c>.
+            </summary>
+        </member>
+        <member name="M:Repotara.Providers.IReportDataProvider.ExecuteAsync(Repotara.Definition.ReportDefinition,System.Collections.Generic.IReadOnlyDictionary{System.String,Repotara.Metadata.ReportTypeMetadata},System.Threading.CancellationToken)">
+            <summary>
+            Executes the given definition and returns the resulting rows, already
+            filtered, joined, grouped, aggregated, sorted, and paginated as specified.
+            </summary>
+        </member>
+        <member name="T:Repotara.Providers.Mongo.MongoPipelineBuilder">
+            <summary>
+            Translates a validated <see cref="T:Repotara.Definition.ReportDefinition"/> into a MongoDB
+            aggregation pipeline: <c>$lookup</c> for joins, <c>$match</c> for filters,
+            <c>$group</c> for aggregation, a second <c>$match</c> for having, <c>$sort</c>,
+            then <c>$skip</c>/<c>$limit</c> for pagination.
+            </summary>
+        </member>
+        <member name="M:Repotara.Providers.Mongo.MongoPipelineBuilder.Build(Repotara.Definition.ReportDefinition,System.Collections.Generic.IReadOnlyDictionary{System.String,Repotara.Metadata.ReportTypeMetadata},System.Int32)">
+            <summary>Builds the full pipeline for the given definition.</summary>
+        </member>
+        <member name="M:Repotara.Providers.Mongo.MongoPipelineBuilder.ResolveMongoField(System.String,System.Collections.Generic.IReadOnlyDictionary{System.String,Repotara.Metadata.ReportTypeMetadata},System.String)">
+            <summary>
+            Resolves a "Source.Property" path to its physical Mongo field path. Root
+            source fields are top-level (no prefix); joined sources are nested under
+            the $lookup "as" alias, so they resolve to "Alias.field".
+            </summary>
+        </member>
+        <member name="T:Repotara.Providers.Mongo.MongoReportProvider">
+            <summary>
+            Executes a <see cref="T:Repotara.Definition.ReportDefinition"/> against MongoDB by translating it
+            to an aggregation pipeline via <see cref="T:Repotara.Providers.Mongo.MongoPipelineBuilder"/>.
+            </summary>
+        </member>
+        <member name="M:Repotara.Providers.Mongo.MongoReportProvider.#ctor(Microsoft.Extensions.Options.IOptions{Repotara.Providers.RepotaraOptions})">
+            <summary>Creates the provider using the given configured options.</summary>
+        </member>
+        <member name="M:Repotara.Providers.Mongo.MongoReportProvider.ExecuteAsync(Repotara.Definition.ReportDefinition,System.Collections.Generic.IReadOnlyDictionary{System.String,Repotara.Metadata.ReportTypeMetadata},System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:Repotara.Providers.ProviderType">
+            <summary>The database technology Repotara runs report queries against.</summary>
+        </member>
+        <member name="F:Repotara.Providers.ProviderType.Sql">
+            <summary>A relational database, selected via <see cref="!:SqlOption"/>.</summary>
+        </member>
+        <member name="F:Repotara.Providers.ProviderType.MongoDb">
+            <summary>MongoDB.</summary>
+        </member>
+        <member name="T:Repotara.Providers.ReportableTypeRegistry">
+            <summary>
+            Resolves the source names used in a <see cref="T:Repotara.Definition.ReportDefinition"/>
+            (e.g. "Order") to their CLR <see cref="T:System.Type"/>, built once at startup from
+            whatever assemblies, base types, or individual types were registered via
+            <see cref="M:Repotara.Providers.RepotaraOptions.RegisterAssembly(System.Reflection.Assembly)"/>, <see cref="M:Repotara.Providers.RepotaraOptions.RegisterDerivedFrom``1(System.Reflection.Assembly)"/>,
+            and <see cref="M:Repotara.Providers.RepotaraOptions.RegisterType``1"/>.
+            </summary>
+        </member>
+        <member name="M:Repotara.Providers.ReportableTypeRegistry.Resolve(System.String)">
+            <summary>
+            Resolves a source name (matching a class name) to its registered CLR type,
+            throwing a clear error if it was never registered.
+            </summary>
+        </member>
+        <member name="M:Repotara.Providers.ReportableTypeRegistry.Build(Repotara.Providers.RepotaraOptions)">
+            <summary>Builds the registry from the given options, scanning every registered source.</summary>
+        </member>
+        <member name="T:Repotara.Providers.RepotaraOptions">
+            <summary>
+            Configuration for Repotara, registered once at startup via
+            <c>services.AddRepotara(options => ...)</c>. A single project is assumed to
+            use exactly one database throughout, so this is configured once, not per request.
+            </summary>
+        </member>
+        <member name="P:Repotara.Providers.RepotaraOptions.Provider">
+            <summary>Which database technology to run report queries against.</summary>
+        </member>
+        <member name="P:Repotara.Providers.RepotaraOptions.Options">
+            <summary>The relational dialect to use when <see cref="P:Repotara.Providers.RepotaraOptions.Provider"/> is Sql.</summary>
+        </member>
+        <member name="P:Repotara.Providers.RepotaraOptions.Host">
+            <summary>Database server hostname.</summary>
+        </member>
+        <member name="P:Repotara.Providers.RepotaraOptions.Port">
+            <summary>Database server port.</summary>
+        </member>
+        <member name="P:Repotara.Providers.RepotaraOptions.DatabaseName">
+            <summary>Database or schema name.</summary>
+        </member>
+        <member name="P:Repotara.Providers.RepotaraOptions.Username">
+            <summary>Database username.</summary>
+        </member>
+        <member name="P:Repotara.Providers.RepotaraOptions.Password">
+            <summary>Database password.</summary>
+        </member>
+        <member name="P:Repotara.Providers.RepotaraOptions.EnableMultiTenancy">
+            <summary>
+            When true, every query is automatically scoped to the current tenant
+            using <see cref="P:Repotara.Providers.RepotaraOptions.TenantColumn"/>, resolved via the registered
+            <c>ITenantContext</c>. Defaults to false (no behavior change for
+            single-tenant projects).
+            </summary>
+        </member>
+        <member name="P:Repotara.Providers.RepotaraOptions.TenantColumn">
+            <summary>
+            The physical column/field name holding the tenant identifier, applied to
+            every reportable class unless it opts out via <c>[Reportable(IgnoreTenant = true)]</c>.
+            </summary>
+        </member>
+        <member name="P:Repotara.Providers.RepotaraOptions.DefaultRowLimit">
+            <summary>
+            The row limit applied when a <see cref="T:Repotara.Definition.ReportDefinition"/>
+            does not specify its own Take value, so no report runs unbounded by accident.
+            </summary>
+        </member>
+        <member name="P:Repotara.Providers.RepotaraOptions.Assemblies">
+            <summary>
+            Assemblies to scan for every <c>[Reportable]</c> class, added via <see cref="M:Repotara.Providers.RepotaraOptions.RegisterAssembly(System.Reflection.Assembly)"/>.
+            </summary>
+        </member>
+        <member name="P:Repotara.Providers.RepotaraOptions.ExplicitTypes">
+            <summary>
+            Individual classes registered explicitly via <see cref="M:Repotara.Providers.RepotaraOptions.RegisterType``1"/>,
+            without scanning an entire assembly.
+            </summary>
+        </member>
+        <member name="P:Repotara.Providers.RepotaraOptions.DerivedFromRegistrations">
+            <summary>
+            Base type + assembly pairs registered via <see cref="M:Repotara.Providers.RepotaraOptions.RegisterDerivedFrom``1(System.Reflection.Assembly)"/>:
+            every type deriving from the base type and marked <c>[Reportable]</c> is included.
+            </summary>
+        </member>
+        <member name="M:Repotara.Providers.RepotaraOptions.RegisterAssembly(System.Reflection.Assembly)">
+            <summary>
+            Scans every type in the given assembly and registers every one marked
+            <c>[Reportable]</c>, regardless of base type. Use when your reportable
+            models don't share a common base class.
+            </summary>
+        </member>
+        <member name="M:Repotara.Providers.RepotaraOptions.RegisterDerivedFrom``1(System.Reflection.Assembly)">
+            <summary>
+            Scans for every type deriving from <typeparamref name="TBase"/> that is
+            marked <c>[Reportable]</c>, e.g. <c>RegisterDerivedFrom&lt;DbModel&gt;()</c>
+            finds Order, Customer, etc. without listing each one individually.
+            Scans <typeparamref name="TBase"/>'s own assembly unless a different one is supplied.
+            </summary>
+        </member>
+        <member name="M:Repotara.Providers.RepotaraOptions.RegisterType``1">
+            <summary>
+            Registers a single class explicitly, without scanning its assembly for
+            other reportable types. Useful for a one-off exception to your usual pattern.
+            </summary>
+        </member>
+        <member name="T:Repotara.Providers.Sql.ISqlDialect">
+            <summary>
+            Handles syntax differences between relational databases (identifier
+            quoting, parameter style, paging syntax) so <see cref="T:Repotara.Providers.Sql.SqlQueryBuilder"/>
+            can stay dialect-agnostic.
+            </summary>
+        </member>
+        <member name="M:Repotara.Providers.Sql.ISqlDialect.QuoteIdentifier(System.String)">
+            <summary>Quotes an identifier (table or column alias) for safe inclusion in a query.</summary>
+        </member>
+        <member name="P:Repotara.Providers.Sql.ISqlDialect.ParameterPrefix">
+            <summary>The parameter placeholder prefix, e.g. "@".</summary>
+        </member>
+        <member name="M:Repotara.Providers.Sql.ISqlDialect.BuildPaging(System.Int32,System.Int32)">
+            <summary>Builds the paging clause (e.g. OFFSET/FETCH or LIMIT/OFFSET) for this dialect.</summary>
+        </member>
+        <member name="T:Repotara.Providers.Sql.MySqlDialect">
+            <summary>SQL syntax rules for MySQL.</summary>
+        </member>
+        <member name="M:Repotara.Providers.Sql.MySqlDialect.QuoteIdentifier(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="P:Repotara.Providers.Sql.MySqlDialect.ParameterPrefix">
+            <inheritdoc />
+        </member>
+        <member name="M:Repotara.Providers.Sql.MySqlDialect.BuildPaging(System.Int32,System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="T:Repotara.Providers.Sql.PostgreSqlDialect">
+            <summary>SQL syntax rules for PostgreSQL.</summary>
+        </member>
+        <member name="M:Repotara.Providers.Sql.PostgreSqlDialect.QuoteIdentifier(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="P:Repotara.Providers.Sql.PostgreSqlDialect.ParameterPrefix">
+            <inheritdoc />
+        </member>
+        <member name="M:Repotara.Providers.Sql.PostgreSqlDialect.BuildPaging(System.Int32,System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="T:Repotara.Providers.Sql.SqlOption">
+            <summary>The specific relational database dialect to use when <see cref="F:Repotara.Providers.ProviderType.Sql"/> is selected.</summary>
+        </member>
+        <member name="F:Repotara.Providers.Sql.SqlOption.SqlServer">
+            <summary>Microsoft SQL Server.</summary>
+        </member>
+        <member name="F:Repotara.Providers.Sql.SqlOption.PostgreSql">
+            <summary>PostgreSQL.</summary>
+        </member>
+        <member name="F:Repotara.Providers.Sql.SqlOption.MySql">
+            <summary>MySQL.</summary>
+        </member>
+        <member name="T:Repotara.Providers.Sql.SqlQueryBuilder">
+            <summary>
+            Translates a validated <see cref="T:Repotara.Definition.ReportDefinition"/> into parameterized SQL
+            for the configured dialect. Every value in the definition's filters is bound
+            as a query parameter -- never string-concatenated -- to prevent SQL injection.
+            </summary>
+        </member>
+        <member name="M:Repotara.Providers.Sql.SqlQueryBuilder.#ctor(Repotara.Providers.Sql.ISqlDialect)">
+            <summary>Creates a query builder for the given dialect.</summary>
+        </member>
+        <member name="M:Repotara.Providers.Sql.SqlQueryBuilder.Build(Repotara.Definition.ReportDefinition,System.Collections.Generic.IReadOnlyDictionary{System.String,Repotara.Metadata.ReportTypeMetadata},System.Int32)">
+            <summary>Builds the SQL text and its bound parameters for the given definition.</summary>
+        </member>
+        <member name="T:Repotara.Providers.Sql.SqlReportProvider">
+            <summary>
+            Executes a <see cref="T:Repotara.Definition.ReportDefinition"/> against a relational database
+            (SQL Server, PostgreSQL, or MySQL) by translating it to parameterized SQL
+            via <see cref="T:Repotara.Providers.Sql.SqlQueryBuilder"/> and running it with ADO.NET.
+            </summary>
+        </member>
+        <member name="M:Repotara.Providers.Sql.SqlReportProvider.#ctor(Microsoft.Extensions.Options.IOptions{Repotara.Providers.RepotaraOptions})">
+            <summary>Creates the provider using the given configured options.</summary>
+        </member>
+        <member name="M:Repotara.Providers.Sql.SqlReportProvider.ExecuteAsync(Repotara.Definition.ReportDefinition,System.Collections.Generic.IReadOnlyDictionary{System.String,Repotara.Metadata.ReportTypeMetadata},System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:Repotara.Providers.Sql.SqlServerDialect">
+            <summary>SQL syntax rules for Microsoft SQL Server.</summary>
+        </member>
+        <member name="M:Repotara.Providers.Sql.SqlServerDialect.QuoteIdentifier(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="P:Repotara.Providers.Sql.SqlServerDialect.ParameterPrefix">
+            <inheritdoc />
+        </member>
+        <member name="M:Repotara.Providers.Sql.SqlServerDialect.BuildPaging(System.Int32,System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="T:Repotara.ReportEngine">
+            <summary>
+            The single entry point for running a report. Applies tenant scoping,
+            resolves relative date keywords, validates the definition against source
+            metadata, executes it via the configured <see cref="T:Repotara.Providers.IReportDataProvider"/>,
+            and writes the result in the requested <see cref="T:Repotara.Output.OutputFormat"/>.
+            </summary>
+        </member>
+        <member name="M:Repotara.ReportEngine.#ctor(Repotara.Providers.IReportDataProvider,Microsoft.Extensions.Options.IOptions{Repotara.Providers.RepotaraOptions},Repotara.Providers.ReportableTypeRegistry,System.Collections.Generic.IEnumerable{Repotara.Output.IReportWriter},Repotara.Tenancy.ITenantContext)">
+            <summary>Creates the engine with its provider, options, type registry, optional tenant context, and writers.</summary>
+        </member>
+        <member name="M:Repotara.ReportEngine.ExecuteAsync(Repotara.Definition.ReportDefinition,Repotara.Output.OutputFormat,System.Threading.CancellationToken)">
+            <summary>
+            Runs the given definition and returns the result written in the requested
+            format. Every source named in <paramref name="definition"/> must already
+            be registered via RepotaraOptions.RegisterAssembly, RegisterDerivedFrom, or RegisterType.
+            </summary>
+        </member>
+        <member name="T:Repotara.ReportResult">
+            <summary>
+            The final report output, ready to be returned directly from a controller
+            action as the HTTP response body.
+            </summary>
+        </member>
+        <member name="P:Repotara.ReportResult.Content">
+            <summary>The serialized report content (JSON, XML, or HTML text).</summary>
+        </member>
+        <member name="P:Repotara.ReportResult.ContentType">
+            <summary>The MIME content type matching <see cref="P:Repotara.ReportResult.Content"/>.</summary>
+        </member>
+        <member name="T:Repotara.ReportRow">
+            <summary>
+            A single output row: an ordered set of column/value pairs. Column order
+            always matches the order fields were requested in the
+            <see cref="T:Repotara.Definition.ReportDefinition"/>. Lookups by column name
+            are O(1) via a parallel index, while iteration for output preserves order.
+            </summary>
+        </member>
+        <member name="M:Repotara.ReportRow.Set(System.String,System.Object)">
+            <summary>Sets (or appends) a column value, preserving insertion order.</summary>
+        </member>
+        <member name="M:Repotara.ReportRow.Get(System.String)">
+            <summary>Gets a column value, or null if the column does not exist on this row.</summary>
+        </member>
+        <member name="P:Repotara.ReportRow.Values">
+            <summary>All column/value pairs, in the order they were set.</summary>
+        </member>
+        <member name="T:Repotara.ServiceCollectionExtensions">
+            <summary>
+            Registers Repotara with dependency injection. Call
+            <c>services.AddRepotara(options => ...)</c> once at startup.
+            </summary>
+        </member>
+        <member name="M:Repotara.ServiceCollectionExtensions.AddRepotara(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Action{Repotara.Providers.RepotaraOptions})">
+            <summary>
+            Registers <see cref="T:Repotara.ReportEngine"/>, the configured
+            <see cref="T:Repotara.Providers.IReportDataProvider"/> (Sql or MongoDb per
+            <see cref="P:Repotara.Providers.RepotaraOptions.Provider"/>), and all built-in output writers.
+            </summary>
+        </member>
+        <member name="T:Repotara.Templating.TagParser">
+            <summary>
+            Extracts simple <c>{{ColumnName}}</c> substitution tags from a template
+            string. Deliberately supports substitution only -- no loops, no blocks.
+            </summary>
+        </member>
+        <member name="M:Repotara.Templating.TagParser.TagPattern">
+            <remarks>
+            Pattern:<br/>
+            <code>\\{\\{\\s*([^{}]+?)\\s*\\}\\}</code><br/>
+            Explanation:<br/>
+            <code>
+            ○ Match the string "{{".<br/>
+            ○ Match a whitespace character greedily any number of times.<br/>
+            ○ 1st capture group.<br/>
+                ○ Match a character in the set [^{}] lazily at least once.<br/>
+            ○ Match a whitespace character atomically any number of times.<br/>
+            ○ Match the string "}}".<br/>
+            </code>
+            </remarks>
+        </member>
+        <member name="M:Repotara.Templating.TagParser.ExtractTags(System.String)">
+            <summary>Returns every distinct tag name found in the template, in order of first appearance.</summary>
+        </member>
+        <member name="T:Repotara.Templating.TemplateRenderer">
+            <summary>
+            Renders a template string by replacing each <c>{{ColumnName}}</c> tag with
+            the corresponding value from a <see cref="T:Repotara.ReportRow"/>.
+            </summary>
+        </member>
+        <member name="M:Repotara.Templating.TemplateRenderer.TagPattern">
+            <remarks>
+            Pattern:<br/>
+            <code>\\{\\{\\s*([^{}]+?)\\s*\\}\\}</code><br/>
+            Explanation:<br/>
+            <code>
+            ○ Match the string "{{".<br/>
+            ○ Match a whitespace character greedily any number of times.<br/>
+            ○ 1st capture group.<br/>
+                ○ Match a character in the set [^{}] lazily at least once.<br/>
+            ○ Match a whitespace character atomically any number of times.<br/>
+            ○ Match the string "}}".<br/>
+            </code>
+            </remarks>
+        </member>
+        <member name="M:Repotara.Templating.TemplateRenderer.Render(System.String,Repotara.ReportRow)">
+            <summary>Renders the template for a single row.</summary>
+        </member>
+        <member name="M:Repotara.Templating.TemplateRenderer.RenderAll(System.String,System.Collections.Generic.IEnumerable{Repotara.ReportRow})">
+            <summary>Renders the template once per row and concatenates the results.</summary>
+        </member>
+        <member name="T:Repotara.Tenancy.ITenantContext">
+            <summary>
+            Supplies the current authenticated user's tenant identifier. Implemented by
+            the consuming Web API project (typically by reading a claim from the current
+            HTTP context), never by Repotara itself. Only used when
+            <c>RepotaraOptions.EnableMultiTenancy</c> is true.
+            </summary>
+        </member>
+        <member name="P:Repotara.Tenancy.ITenantContext.TenantId">
+            <summary>The tenant/company identifier for the current request.</summary>
+        </member>
+        <member name="T:Repotara.Tenancy.TenantScopeInjector">
+            <summary>
+            Injects a mandatory tenant-scoping condition into a <see cref="T:Repotara.Definition.ReportDefinition"/>'s
+            filter tree, server-side, before validation or query building ever run. The
+            frontend's JSON can never see, set, or override this condition.
+            </summary>
+        </member>
+        <member name="M:Repotara.Tenancy.TenantScopeInjector.Apply(Repotara.Definition.ReportDefinition,System.Collections.Generic.IReadOnlyDictionary{System.String,Repotara.Metadata.ReportTypeMetadata},Repotara.Providers.RepotaraOptions,System.String)">
+            <summary>
+            Returns a filter tree with tenant conditions merged in for every source
+            that has a tenant column and has not opted out, or the original filter
+            unchanged if multi-tenancy is disabled or no source needs scoping.
+            </summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.TagPattern_0">
+            <summary>Custom <see cref="T:System.Text.RegularExpressions.Regex"/>-derived type for the TagPattern method.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.TagPattern_0.Instance">
+            <summary>Cached, thread-safe singleton instance.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.TagPattern_0.#ctor">
+            <summary>Initializes the instance.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.TagPattern_0.RunnerFactory">
+            <summary>Provides a factory for creating <see cref="T:System.Text.RegularExpressions.RegexRunner"/> instances to be used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.TagPattern_0.RunnerFactory.CreateInstance">
+            <summary>Creates an instance of a <see cref="T:System.Text.RegularExpressions.RegexRunner"/> used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.TagPattern_0.RunnerFactory.Runner">
+            <summary>Provides the runner that contains the custom logic implementing the specified regular expression.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.TagPattern_0.RunnerFactory.Runner.Scan(System.ReadOnlySpan{System.Char})">
+            <summary>Scan the <paramref name="inputSpan"/> starting from base.runtextstart for the next match.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.TagPattern_0.RunnerFactory.Runner.TryFindNextPossibleStartingPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Search <paramref name="inputSpan"/> starting from base.runtextpos for the next location a match could possibly start.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if a possible match was found; false if no more matches are possible.</returns>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.TagPattern_0.RunnerFactory.Runner.TryMatchAtCurrentPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Determine whether <paramref name="inputSpan"/> at base.runtextpos is a match for the regular expression.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if the regular expression matches at the current position; otherwise, false.</returns>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.Utilities">
+            <summary>Helper methods used by generated <see cref="T:System.Text.RegularExpressions.Regex"/>-derived implementations.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.Utilities.s_defaultTimeout">
+            <summary>Default timeout value set in <see cref="T:System.AppContext"/>, or <see cref="F:System.Text.RegularExpressions.Regex.InfiniteMatchTimeout"/> if none was set.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.Utilities.s_hasTimeout">
+            <summary>Whether <see cref="F:System.Text.RegularExpressions.Generated.Utilities.s_defaultTimeout"/> is non-infinite.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.Utilities.s_indexOfString_BB1C8D594CD963F65D3EAF61D3D969FEE92730B1764726818716F84676CA8389">
+            <summary>Supports searching for the string "{{".</summary>
+        </member>
+    </members>
+</doc>

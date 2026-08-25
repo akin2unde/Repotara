@@ -1,0 +1,14 @@
+/Users/mac/Work/Mine/Repotara/src/Repotara/bin/Debug/net10.0/Repotara.deps.json
+/Users/mac/Work/Mine/Repotara/src/Repotara/bin/Debug/net10.0/Repotara.dll
+/Users/mac/Work/Mine/Repotara/src/Repotara/bin/Debug/net10.0/Repotara.pdb
+/Users/mac/Work/Mine/Repotara/src/Repotara/bin/Debug/net10.0/Repotara.xml
+/Users/mac/Work/Mine/Repotara/src/Repotara/obj/Debug/net10.0/Repotara.csproj.AssemblyReference.cache
+/Users/mac/Work/Mine/Repotara/src/Repotara/obj/Debug/net10.0/Repotara.GeneratedMSBuildEditorConfig.editorconfig
+/Users/mac/Work/Mine/Repotara/src/Repotara/obj/Debug/net10.0/Repotara.AssemblyInfoInputs.cache
+/Users/mac/Work/Mine/Repotara/src/Repotara/obj/Debug/net10.0/Repotara.AssemblyInfo.cs
+/Users/mac/Work/Mine/Repotara/src/Repotara/obj/Debug/net10.0/Repotara.csproj.CoreCompileInputs.cache
+/Users/mac/Work/Mine/Repotara/src/Repotara/obj/Debug/net10.0/Repotara.dll
+/Users/mac/Work/Mine/Repotara/src/Repotara/obj/Debug/net10.0/refint/Repotara.dll
+/Users/mac/Work/Mine/Repotara/src/Repotara/obj/Debug/net10.0/Repotara.xml
+/Users/mac/Work/Mine/Repotara/src/Repotara/obj/Debug/net10.0/Repotara.pdb
+/Users/mac/Work/Mine/Repotara/src/Repotara/obj/Debug/net10.0/ref/Repotara.dll

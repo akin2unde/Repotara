@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/samples/">
+    <Project Path="samples/Repotara.SampleApi/Repotara.SampleApi.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Repotara/Repotara.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Repotara.Tests/Repotara.Tests.csproj" />
+  </Folder>
+</Solution>
